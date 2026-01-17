@@ -131,7 +131,7 @@ export default function Home() {
       >
         <textarea
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value.trim())}
+          onChange={(e) => setPrompt(e.target.value)}
           placeholder="Enter your prompt here..."
           className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-transform transform"
         />

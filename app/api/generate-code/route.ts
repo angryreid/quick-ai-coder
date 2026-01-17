@@ -10,48 +10,17 @@ const genAI = new OpenAI({
 });
 
 export async function POST(req: Request) {
-  const json = await req.json();
-  const result = z
-    .object({
-      messages: z.array(
-        z.object({
-          role: z.enum(["user", "assistant"]),
-          content: z.string(),
-        }),
-      ),
-    })
-    .safeParse(json);
+  const helloWorldCode = `import React from "react";
 
-  if (result.error) {
-    return new Response(result.error.message, { status: 422 });
-  }
+export default function App() {
+  return <div className="text-2xl font-bold text-center mt-10">Hello World</div>;
+}`;
 
-  const { messages } = result.data;
-  const systemPrompt = getSystemPrompt();
-
-  const deepseekStream = await genAI.chat.completions.create({
-    messages: [{ role: "system", content: systemPrompt }, ...messages],
-    model: "deepseek-chat",
-    stream: true,
-  });
-
+  const encoder = new TextEncoder();
   const readableStream = new ReadableStream({
-    async start(controller) {
-      // const decoder = new TextDecoder();
-      const encoder = new TextEncoder();
-
-      try {
-        for await (const chunk of deepseekStream) {
-          const chunkText = chunk.choices[0].delta?.content || "";
-          // console.log("chunkText", chunkText);
-          controller.enqueue(encoder.encode(chunkText));
-        }
-      } catch (error) {
-        console.error("Error reading from stream:", error);
-        controller.error(error);
-      } finally {
-        controller.close();
-      }
+    start(controller) {
+      controller.enqueue(encoder.encode(helloWorldCode));
+      controller.close();
     },
   });
 
